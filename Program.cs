@@ -72,7 +72,6 @@ namespace DarkwaterSupportBot
                 Irc.Client.Connecting += OnConnecting;
                 Irc.Client.Connected += Client_Connected;
                 Irc.BeginConnect(Irc._network[0].ToString(), Port);
-                
                 #endregion
 
                 Runtimer.Start();
