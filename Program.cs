@@ -73,7 +73,6 @@ namespace DarkwaterSupportBot
                 Irc.Client.Connected += Client_Connected;
                 Irc.BeginConnect(Irc._network[0].ToString(), Port);
                 #endregion
-
                 Runtimer.Start();
                 while (true) // Prevent WCell.Tools from crashing - due to console methods inside the program.
                 {
