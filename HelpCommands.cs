@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Squishy.Irc.Account;
 using Squishy.Irc.Commands;
 
 namespace DarkwaterSupportBot
@@ -9,8 +10,6 @@ namespace DarkwaterSupportBot
     class HelpCommands
     {
         #region IrcAdditionCommands
-        #region AddHelpCommand
-
         public class AddHelpCommand : Command
         {
             public AddHelpCommand()
@@ -24,9 +23,9 @@ namespace DarkwaterSupportBot
             {
                 try
                 {
-                    var helpName = trigger.Args.NextWord();
+                    var helpName = trigger.Args.NextWord().ToLower();
                     var helpText = trigger.Args.Remainder;
-                    if(helpName != null && helpText != null)
+                    if(!string.IsNullOrEmpty(helpName) && !string.IsNullOrEmpty(helpText))
                     {
                         HelpCommandsManager.Add(HelpCommand.CreateHelpCommand(helpName,helpText));
                         trigger.Reply(string.Format("Added new command HelpTrigger: {0} HelpText: {1}",helpName,helpText));
@@ -38,13 +37,10 @@ namespace DarkwaterSupportBot
                 }
                 catch (Exception e)
                 {
-                    UtilityMethods.Print(e.Data + e.StackTrace, true);
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
                 }
             }
         }
-
-        #endregion
-        #region DeleteHelpCommand
         public class DeleteHelpCommand : Command
         {
             public DeleteHelpCommand()
@@ -52,14 +48,15 @@ namespace DarkwaterSupportBot
             {
                 Usage = "deletehelp cmdtotrigger";
                 Description = "Remove a help command from the help database";
+                RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
             }
 
             public override void Process(CmdTrigger trigger)
             {
                 try
                 {
-                    var helpName = trigger.Args.NextWord();
-                    if (helpName != null)
+                    var helpName = trigger.Args.NextWord().ToLower();
+                    if (!string.IsNullOrEmpty(helpName))
                     {
                         var cmd = HelpCommandsManager.Search(helpName);
                         if (cmd != null)
@@ -74,44 +71,15 @@ namespace DarkwaterSupportBot
                     }
                     else
                     {
-                        trigger.User.Msg("An error occured deleting the specified command, it appears that the command did not exist, please check and try again or report the error!");
+                        trigger.Reply("An error occured deleting the specified command, it appears that the command did not exist, please check and try again or report the error!");
                     }
                 }
                 catch (Exception e)
                 {
-                    UtilityMethods.Print(e.Data + e.StackTrace, true);
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
                 }
             }
         }
-
-        #endregion
-        #endregion
-        #region CodedHelpCommands
-        #region PhysxCommand
-
-        public class PhysxCommand : Command
-        {
-            public PhysxCommand()
-                : base("Physx","ati")
-            {
-                Usage = "physx";
-                Description = "Shows how to solve physx issues encountered on startup";
-            }
-
-            public override void Process(CmdTrigger trigger)
-            {
-                try
-                {
-                    trigger.Reply("1. Navigate to dogfighter install directory 2. Go to the Redist folder 3. Create a shortcut for PhysX_9.10.0129_SystemSoftware on the desktop 4. Edit the shortcut and put /passive on the end of the target line 5. Run the shortcut 6. Restart Steam when it is done 7. Launch Game!");
-                }
-                catch (Exception e)
-                {
-                    UtilityMethods.Print(e.Data + e.StackTrace, true);
-                }
-            }
-        }
-
-        #endregion
         #endregion
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Squishy.Irc;
@@ -12,8 +14,22 @@ namespace DarkwaterSupportBot
 {
     public class UtilityMethods
     {
-        #region ClearQueueCommand
+        public class VersionCommand : Command
+        {
+            public VersionCommand()
+                : base("Version")
+            {
+                Usage = "Version";
+                Description = "Shows the version of this bot.";
+            }
 
+            public override void Process(CmdTrigger trigger)
+            {
+                //trigger.Reply(IrcClient.Version);
+                AssemblyName asmName = Assembly.GetAssembly(GetType()).GetName();
+                trigger.Reply(asmName.Name + ", v" + asmName.Version);
+            }
+        }
         public class ClearQueueCommand : Command
         {
             public ClearQueueCommand()
@@ -30,9 +46,6 @@ namespace DarkwaterSupportBot
                 trigger.Reply("Cleared SendQueue of {0} lines", lines);
             }
         }
-
-        #endregion
-        #region Print
         public static void Print(string text, bool irclog = false)
         {
             try
@@ -47,8 +60,6 @@ namespace DarkwaterSupportBot
             }
 
         }
-        #endregion
-        #region ConsoleText
         public static void OnConsoleText(StringStream cText)
         {
             try
@@ -97,14 +108,29 @@ namespace DarkwaterSupportBot
                 Print(e.Data + e.StackTrace, true);
             }
         }
-        #endregion
-        #region HelpListCommands
-        /// <summary>
-        /// TODO: Use localized strings
-        /// The help command is special since it generates output.
-        /// This output needs to be shown in the GUI if used from commandline and 
-        /// sent to the requester if executed remotely.
-        /// </summary>
+        public class SetSendQueue : Command
+        {
+            public SetSendQueue()
+                : base("setsendqueue")
+            {
+                Usage = "setsendqueue number";
+                Description = "Sets the throttle to number";
+            }
+
+            public override void Process(CmdTrigger trigger)
+            {
+                try
+                {
+                    var sendqueue = trigger.Args.NextInt(60);
+                    DarkWaterBot.SendQueue = sendqueue;
+                    trigger.Reply("Set sendqueue to " + sendqueue);
+                }
+                catch (Exception e)
+                {
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
+                }
+            }
+        }
         public class HelpCommand : Command
         {
             public static int MaxUncompressedCommands = 3;
@@ -118,10 +144,6 @@ namespace DarkwaterSupportBot
 
             public override void Process(CmdTrigger trigger)
             {
-                foreach (var helpCommand in HelpCommandsManager.Help.HelpCommands)
-                {
-                    trigger.Reply(helpCommand.HelpName);
-                }
                 var match = trigger.Args.NextWord();
                 IList<Command> cmds;
                 if (match.Length > 0)
@@ -147,6 +169,18 @@ namespace DarkwaterSupportBot
                 }
                 else
                 {
+                    string helpcmds = "";
+                    int helpruns = 0;
+                    foreach (var helpCommand in HelpCommandsManager.Help.HelpCommands)
+                    {
+                        if (string.IsNullOrEmpty(helpCommand.HelpName))
+                        {
+                            continue;
+                        }
+                        helpruns = helpruns + 1;
+                        helpcmds = helpcmds + helpCommand.HelpName + ", ";
+                    }
+                    trigger.Reply("The following commands are help triggers, you cannot use the !help command with these!\n" + helpcmds);
                     trigger.Reply("Use \"Help <searchterm>\" to receive help on a certain command. - All current commands you can access:");
                     cmds = IrcCommandHandler.List.Where(cmd => cmd.Enabled && trigger.MayTrigger(cmd)).ToList();
                 }
@@ -161,6 +195,7 @@ namespace DarkwaterSupportBot
                     }
                     else
                     {
+                        var temp = line;
                         var info = cmd.Name;
                         string aliases = "";
                         int runs = 0;
@@ -179,7 +214,7 @@ namespace DarkwaterSupportBot
 
                         if (line.Length + info.Length >= IrcProtocol.MaxLineLength)
                         {
-                            trigger.Reply(line);
+                            trigger.Reply(temp);
                             line = "";
                         }
 
@@ -193,11 +228,10 @@ namespace DarkwaterSupportBot
                 }
             }
         }
-        #endregion
         #region NewAuthSystem
-        public class Login : Command
+        public class LoginCommand : Command
         {
-            public Login()
+            public LoginCommand()
                 : base("Login")
             {
                 Description = "login to your account";
@@ -206,85 +240,200 @@ namespace DarkwaterSupportBot
 
             public override void Process(CmdTrigger trigger)
             {
-                char[] seperator = { ' ' };
-                string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-                if (accountLine.Length >= 2)
+                var username = trigger.Args.NextWord();
+                var password = trigger.Args.NextWord();
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 {
-                    AccountMgr.Login(trigger, accountLine[0], accountLine[1]);
-                    trigger.Reply(string.Format("You should now be logged in as {0}", accountLine[0]));
+                    trigger.Reply("Error invalid input please try again!");
+                    return;
                 }
-                else
+                Login(trigger,username,password);
+            }
+            public static void Login(CmdTrigger trigger, string username, string password)
+            {
+                using (var accounts = new AccountsEntities())
                 {
-                    trigger.Reply("Error invalid input 2 values were not found, please try again!");
+                    foreach (var account in accounts.Accounts.Where(account => account.Username == username && account.Password == password))
+                    {
+                            switch (account.UserLevel)
+                            {
+                                case "guest":
+                                    {
+                                        trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Guest);
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
+                                                                    account.UserLevel));
+                                        return;
+                                    }
+                                    break;
+                                case "user":
+                                    {
+                                        trigger.User.SetAccountLevel(AccountMgr.AccountLevel.User);
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
+                                                                    account.UserLevel));
+                                        return;
+                                    }
+                                    break;
+                                case "admin":
+                                    {
+                                        trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Admin);
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
+                                                                    account.UserLevel));
+                                        return;
+                                    }
+                                    break;
+                                default:
+                                    {
+                                        trigger.Reply("Failed to login, check input");
+                                        return;
+                                    }
+                                    break;
+                            }
+                    }
+                    trigger.Reply("Account data invalid! Please try again!");
                 }
             }
         }
-        public class CreateAccount : Command
+        public class CreateAccountCommand : Command
         {
-            public CreateAccount()
+            public CreateAccountCommand()
                 : base("createaccount", "ca")
             {
-                Description = "create a account";
+                Description = "Create a account";
                 Usage = "createaccount accname pw";
             }
 
             public override void Process(CmdTrigger trigger)
             {
-                char[] seperator = { ' ' };
-                string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-                if (accountLine.Length < 2)
+                var username = trigger.Args.NextWord();
+                var password = trigger.Args.NextWord();
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
                 {
-                    trigger.Reply("Error invalid input 2 values were not found, please try again!");
+                    trigger.Reply("Error invalid input please try again!");
                 }
                 else
                 {
-                    AccountMgr.CreateAccount(trigger, accountLine[0], accountLine[1]);
+                    using (var accounts = new AccountsEntities())
+                    {
+                        if (Enumerable.Any(accounts.Accounts.Where(account => account.Username == username)))
+                        {
+                            trigger.Reply("That account already exists!");
+                            return;
+                        }
+                    }
+                    AddAccount(trigger, username,password);
+                    trigger.Reply("Account created");
+                }
+            }
+            public static void AddAccount(CmdTrigger trigger, string username, string password)
+            {
+                using (var accounts = new AccountsEntities())
+                {
+                    var account = new Account {Username = username, Password = password, UserLevel = "guest"};
+                    accounts.Accounts.AddObject(account);
+                    accounts.SaveChanges();
                 }
             }
         }
-        public class ChangeUserLevel : Command
+        public static bool ValidateUserLevel(string userlevel)
         {
-            public ChangeUserLevel()
+            switch (userlevel.ToLower())
+            {
+                case "guest":
+                    {
+                        return true;
+                    }
+                    break;
+                case "user":
+                    {
+                        return true;
+                    }
+                    break;
+                case "admin":
+                    {
+                        return true;
+                    }
+                    break;
+                default:
+                    {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        public class DeleteAccountCommand : Command
+        {
+            public DeleteAccountCommand()
+                : base("deleteaccount","da")
+            {
+                Usage = "deleteaccount username";
+                Description = "Removes the account as specified";
+                RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
+            }
+
+            public override void Process(CmdTrigger trigger)
+            {
+                try
+                {
+                    var username = trigger.Args.NextWord();
+                    if(string.IsNullOrEmpty(username))
+                    {
+                        trigger.Reply("Please specify username!");
+                    }
+                    else
+                    {
+                        using(var accounts = new AccountsEntities())
+                        {
+                            foreach (var account in accounts.Accounts.Where(account => account.Username == username))
+                            {
+                                accounts.DeleteObject(account);
+                                accounts.SaveChanges();
+                                trigger.Reply("Account deleted!");
+                                return;
+                            }
+                            trigger.Reply("Account not found!");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
+                }
+            }
+        }
+        public class ChangeUserLevelCommand : Command
+        {
+            public ChangeUserLevelCommand()
                 : base("ChangeUserLevel")
             {
-                Description = "changes the user level of a user";
+                Description = "Changes the user level of a user";
                 Usage = "ChangeUserLevel nick userlevel";
                 RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
             }
 
             public override void Process(CmdTrigger trigger)
             {
-                char[] seperator = { ' ' };
-                string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-                if (accountLine.Length == 2)
+                var username = trigger.Args.NextWord();
+                var userlevel = trigger.Args.NextWord().ToLower();
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(userlevel))
                 {
-                    IrcUser user = trigger.irc.GetUser(accountLine[0]);
-                    if (user != null)
-                    {
-                        if (accountLine[1].ToLower() == "guest")
-                        {
-                            user.SetAccountLevel(AccountMgr.AccountLevel.Guest);
-                            trigger.Reply(string.Format("Account {0} set to level Guest",accountLine[0]));
-                        }
-                        if (accountLine[1].ToLower() == "user")
-                        {
-                            user.SetAccountLevel(AccountMgr.AccountLevel.User);
-                            trigger.Reply(string.Format("Account {0} set to level User",accountLine[0]));
-                        }
-                        if (accountLine[1].ToLower() == "admin")
-                        {
-                            user.SetAccountLevel(AccountMgr.AccountLevel.Admin);
-                            trigger.Reply(string.Format("Account {0} set to level Admin", accountLine[0]));
-                        }
-                    }
-                    else
-                    {
-                        trigger.Reply("That nick appears to be invalid, please try again!");
-                    }
+                    trigger.Reply("Invalid input please try again!");
                 }
                 else
                 {
-                    trigger.Reply("Invalid input was provided, please check and try again!");
+                    if (!ValidateUserLevel(userlevel))
+                    {
+                        trigger.Reply("Invalid userlevel specified, options are guest,user,admin");
+                        return;
+                    }
+                    using (var accounts = new AccountsEntities())
+                    {
+                        foreach (var account in accounts.Accounts.Where(account => account.Username == username))
+                        {
+                            account.UserLevel = userlevel;
+                            accounts.SaveChanges();
+                            return;
+                        }
+                    }
                 }
             }
         }

@@ -9,7 +9,7 @@ using Squishy.Irc.Account;
 
 namespace Squishy.Irc.Commands
 {
-	public class VersionCommand : Command
+	/*public class VersionCommand : Command
 	{
 		public VersionCommand()
 			: base("Version")
@@ -24,7 +24,7 @@ namespace Squishy.Irc.Commands
 			AssemblyName asmName = Assembly.GetAssembly(GetType()).GetName();
 			trigger.Reply(asmName.Name + ", v" + asmName.Version);
 		}
-	}
+	}*/
 
 	public class JoinCommand : Command
 	{
@@ -57,7 +57,7 @@ namespace Squishy.Irc.Commands
 		//}
 	}
 
-	public class AuthCommand : Command
+	/*public class AuthCommand : Command
 	{
 		public AuthCommand()
 			: base("Auth")
@@ -114,7 +114,7 @@ namespace Squishy.Irc.Commands
 		//        };
 		//    }
 		//}
-	}
+	}*/
 
 	public class NickCommand : Command
 	{

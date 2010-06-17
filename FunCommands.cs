@@ -55,7 +55,7 @@ namespace DarkwaterSupportBot
                 }
                 catch (Exception e)
                 {
-                    UtilityMethods.Print(e.Data + e.StackTrace, true);
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
                 }
             }
         }
@@ -87,7 +87,7 @@ namespace DarkwaterSupportBot
                 {
                     trigger.Reply("I cant write that action, perhaps invalid target?");
                     trigger.Reply(e.Message);
-                    UtilityMethods.Print(e.Data + e.StackTrace, true);
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
                 }
             }
         }

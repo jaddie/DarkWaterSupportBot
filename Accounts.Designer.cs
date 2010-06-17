@@ -113,17 +113,15 @@ namespace DarkwaterSupportBot
         /// <summary>
         /// Create a new Account object.
         /// </summary>
-        /// <param name="id">Initial value of the Id property.</param>
         /// <param name="username">Initial value of the Username property.</param>
         /// <param name="password">Initial value of the Password property.</param>
-        /// <param name="emailAddress">Initial value of the EmailAddress property.</param>
-        public static Account CreateAccount(global::System.Int32 id, global::System.String username, global::System.String password, global::System.String emailAddress)
+        /// <param name="userLevel">Initial value of the UserLevel property.</param>
+        public static Account CreateAccount(global::System.String username, global::System.String password, global::System.String userLevel)
         {
             Account account = new Account();
-            account.Id = id;
             account.Username = username;
             account.Password = password;
-            account.EmailAddress = emailAddress;
+            account.UserLevel = userLevel;
             return account;
         }
 
@@ -135,33 +133,6 @@ namespace DarkwaterSupportBot
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.Int32 Id
-        {
-            get
-            {
-                return _Id;
-            }
-            set
-            {
-                if (_Id != value)
-                {
-                    OnIdChanging(value);
-                    ReportPropertyChanging("Id");
-                    _Id = StructuralObject.SetValidValue(value);
-                    ReportPropertyChanged("Id");
-                    OnIdChanged();
-                }
-            }
-        }
-        private global::System.Int32 _Id;
-        partial void OnIdChanging(global::System.Int32 value);
-        partial void OnIdChanged();
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
-        [DataMemberAttribute()]
         public global::System.String Username
         {
             get
@@ -170,11 +141,14 @@ namespace DarkwaterSupportBot
             }
             set
             {
-                OnUsernameChanging(value);
-                ReportPropertyChanging("Username");
-                _Username = StructuralObject.SetValidValue(value, false);
-                ReportPropertyChanged("Username");
-                OnUsernameChanged();
+                if (_Username != value)
+                {
+                    OnUsernameChanging(value);
+                    ReportPropertyChanging("Username");
+                    _Username = StructuralObject.SetValidValue(value, false);
+                    ReportPropertyChanged("Username");
+                    OnUsernameChanged();
+                }
             }
         }
         private global::System.String _Username;
@@ -210,24 +184,24 @@ namespace DarkwaterSupportBot
         /// </summary>
         [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public global::System.String EmailAddress
+        public global::System.String UserLevel
         {
             get
             {
-                return _EmailAddress;
+                return _UserLevel;
             }
             set
             {
-                OnEmailAddressChanging(value);
-                ReportPropertyChanging("EmailAddress");
-                _EmailAddress = StructuralObject.SetValidValue(value, false);
-                ReportPropertyChanged("EmailAddress");
-                OnEmailAddressChanged();
+                OnUserLevelChanging(value);
+                ReportPropertyChanging("UserLevel");
+                _UserLevel = StructuralObject.SetValidValue(value, false);
+                ReportPropertyChanged("UserLevel");
+                OnUserLevelChanged();
             }
         }
-        private global::System.String _EmailAddress;
-        partial void OnEmailAddressChanging(global::System.String value);
-        partial void OnEmailAddressChanged();
+        private global::System.String _UserLevel;
+        partial void OnUserLevelChanging(global::System.String value);
+        partial void OnUserLevelChanged();
 
         #endregion
     

@@ -23,7 +23,7 @@ namespace DarkwaterSupportBot
 
         #region Lists
 
-        public static readonly List<string> ChannelList = new List<string> { "#dogfighter" };
+        public static readonly List<string> ChannelList = new List<string> {"#woc"};
 
         #endregion
 
@@ -157,12 +157,8 @@ namespace DarkwaterSupportBot
             }
             catch (Exception e)
             {
-                UtilityMethods.Print(e.Data + e.StackTrace, true);
+                UtilityMethods.Print(e.Message + e.Data + e.StackTrace, true);
             }
-        }
-
-        private static void ProcessDBHelpCommands()
-        {
         }
         protected override void OnUnknownCommandUsed(CmdTrigger trigger)
         {
@@ -170,7 +166,7 @@ namespace DarkwaterSupportBot
             {
                 return;
             }
-            HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias);
+            HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias.ToLower());
             trigger.Reply(cmd != null
                               ? cmd.HelpText
                               : "This command does not exist, try !help or suggest the creation of the command");
@@ -270,11 +266,6 @@ namespace DarkwaterSupportBot
         //TODO: Update to add a proper suited auth system.);
             //return true;
         }
-           /* catch(Exception e)
-            {
-                UtilityMethods.Print(e.Data + e.StackTrace,true);
-                return false;
-            }*/
 
         #endregion
 
