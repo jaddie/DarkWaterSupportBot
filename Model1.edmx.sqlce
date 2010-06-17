@@ -1,0 +1,51 @@
+
+-- --------------------------------------------------
+-- Entity Designer DDL Script for SQL Server Compact Edition
+-- --------------------------------------------------
+-- Date Created: 06/16/2010 01:00:05
+-- Generated from EDMX file: c:\users\fairenough\documents\visual studio 2010\Projects\DarkwaterSupportBot\Model1.edmx
+-- --------------------------------------------------
+
+
+-- --------------------------------------------------
+-- Dropping existing FOREIGN KEY constraints
+-- NOTE: if the constraint does not exist, an ignorable error will be reported.
+-- --------------------------------------------------
+
+
+-- --------------------------------------------------
+-- Dropping existing tables
+-- NOTE: if the table does not exist, an ignorable error will be reported.
+-- --------------------------------------------------
+
+    DROP TABLE [HelpCommands];
+GO
+
+-- --------------------------------------------------
+-- Creating all tables
+-- --------------------------------------------------
+
+-- Creating table 'HelpCommands'
+CREATE TABLE [HelpCommands] (
+    [HelpName] nvarchar(4000)  NOT NULL,
+    [HelpText] nvarchar(4000)  NOT NULL
+);
+GO
+
+-- --------------------------------------------------
+-- Creating all PRIMARY KEY constraints
+-- --------------------------------------------------
+
+-- Creating primary key on [HelpName] in table 'HelpCommands'
+ALTER TABLE [HelpCommands]
+ADD CONSTRAINT [PK_HelpCommands]
+    PRIMARY KEY ([HelpName] );
+GO
+
+-- --------------------------------------------------
+-- Creating all FOREIGN KEY constraints
+-- --------------------------------------------------
+
+-- --------------------------------------------------
+-- Script has ended
+-- --------------------------------------------------

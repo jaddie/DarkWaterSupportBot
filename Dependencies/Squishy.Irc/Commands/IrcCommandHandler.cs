@@ -466,7 +466,7 @@ namespace Squishy.Irc.Commands
 			// Add to table, mapped by aliases
 			foreach (var alias in cmd.Aliases)
 			{
-				Command exCommand;
+				//Command exCommand; Unused variable
 				//if (!commandsByAlias.TryGetValue(alias, out exCommand))
 				{
 					CommandsByAlias[alias] = cmd;

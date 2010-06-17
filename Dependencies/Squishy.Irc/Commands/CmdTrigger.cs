@@ -17,7 +17,7 @@ namespace Squishy.Irc.Commands
 		internal string alias;
 		internal Command cmd;
 		internal bool expectsServResponse;
-		internal IrcClient irc;
+		public IrcClient irc;
 
 		public CmdTrigger()
 		{

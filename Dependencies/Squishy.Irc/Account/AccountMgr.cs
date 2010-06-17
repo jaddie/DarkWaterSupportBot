@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Squishy.Irc.Commands;
 using System.IO;
 
@@ -18,91 +15,77 @@ namespace Squishy.Irc.Account
 
         public static void CreateAccount(CmdTrigger trigger, string acc, string password)
         {
-            if (acc == string.Empty || acc == null || password == string.Empty || password == null)
+            if (string.IsNullOrEmpty(acc) || string.IsNullOrEmpty(password) || trigger == null)
             {
-                trigger.Reply("Invalid accname or password string");
-                return;
+                throw new NullReferenceException();
             }
-
-            StreamWriter write;
             if (!File.Exists("login.txt"))
             {
-                write = File.CreateText("login.txt");
-                write.WriteLine(acc + ":" + password + ":guest");
-                write.Close();
-                trigger.Reply("account created");
+                throw new FileNotFoundException();
             }
-            else
+            using (var reader = new StreamReader("login.txt"))
             {
-                write = File.AppendText("login.txt");
-                write.WriteLine(acc + ":" + password + ":guest");
-                write.Close();
-                trigger.Reply("account created");
+                while(!reader.EndOfStream)
+                {
+                    if(reader.ReadLine().Contains(acc) && reader.ReadLine().Contains(password))
+                    {
+                        trigger.Reply("That account already exists!");
+                        return;
+                    }
+                }
             }
+            using (var write = new StreamWriter("login.txt", true))
+            {
+                write.WriteLine(acc + ":" + password + ":guest");
+            }
+            trigger.Reply("Account created");
         }
 
         public static void Login(CmdTrigger trigger, string acc, string password)
         {
             if (!File.Exists("login.txt"))
             {
-                trigger.Reply("login.txt wasnt found creating default login.txt, please edit the default login.txt and login again");
-                CreateDefaultLogin();
+                trigger.Reply("The login file was not found! Please use the create account command!");
                 return;
             }
 
-            if (acc == string.Empty || acc == null || password == string.Empty || password == null)
+            if (string.IsNullOrEmpty(acc) || string.IsNullOrEmpty(password))
             {
                 trigger.Reply("Invalid login string");
                 return;
             }
-
-            StreamReader read = File.OpenText("login.txt");
-            
-            string line = read.ReadLine();
-            char[] seperator = { ':' };
-            while (line != null)
+            using (StreamReader read = File.OpenText("login.txt"))
             {
-                string[] splittedLine = line.Split(seperator, 3);
-
-                if (splittedLine.Length >= 3)
+                string line = read.ReadLine();
+                char[] seperator = { ':' };
+                while (line != null)
                 {
-                    if (splittedLine[0] == acc && splittedLine[1] == password)
+                    string[] splittedLine = line.Split(seperator, 3);
+                    if (splittedLine.Length >= 3)
                     {
-                        if (splittedLine[2].ToLower() == "guest")
+                        if (splittedLine[0] == acc && splittedLine[1] == password)
                         {
-                            trigger.User.SetAccountLevel(AccountLevel.Guest);
+                            if (splittedLine[2].ToLower() == "guest")
+                            {
+                                trigger.User.SetAccountLevel(AccountLevel.Guest);
+                            }
+                            if (splittedLine[2].ToLower() == "user")
+                            {
+                                trigger.User.SetAccountLevel(AccountLevel.User);
+                            }
+                            if (splittedLine[2].ToLower() == "admin")
+                            {
+                                trigger.User.SetAccountLevel(AccountLevel.Admin);
+                            }
+                            trigger.Reply("Succesfully logged in");
                         }
-                        if (splittedLine[2].ToLower() == "user")
+                        else
                         {
-                            trigger.User.SetAccountLevel(AccountLevel.User);
+                            trigger.Reply("Invalid password or account");
                         }
-                        if (splittedLine[2].ToLower() == "admin")
-                        {
-                            trigger.User.SetAccountLevel(AccountLevel.Admin);
-                        }
-                        trigger.Reply("succesfully logged in");
                     }
-                    else
-                    {
-                        trigger.Reply("invalid password or account");
-                    }
+                    line = read.ReadLine();
                 }
-                line = read.ReadLine();
-            }
-            read.Close();
-
-        }
-
-        private static void CreateDefaultLogin()
-        {
-            StreamWriter write;
-            if (!File.Exists("login.txt"))
-            {
-                write = File.CreateText("login.txt");
-                string defaultAcc = "accname";
-                string defaultPass = "password";
-                write.WriteLine(defaultAcc + ":" + defaultPass + ":admin");
-                write.Close();
             }
         }
     }

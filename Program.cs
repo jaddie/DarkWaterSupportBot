@@ -23,7 +23,7 @@ namespace DarkwaterSupportBot
 
         #region Lists
 
-        public static readonly List<string> ChannelList = new List<string> { "#woc" };// "#dogfighter"
+        public static readonly List<string> ChannelList = new List<string> { "#dogfighter" };
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace DarkwaterSupportBot
         private const int Port = 6667;
         public static readonly DarkWaterBot Irc = new DarkWaterBot
                                                  {
-                                                     Nicks = new[] {"DFBot"},
+                                                     Nicks = new[] {"DFBot","DFBot_","DFHelper"},
                                                      UserName = "DFBot",
                                                      Info = "Dogfighter Helper",
                                                      _network = Dns.GetHostAddresses("irc.quakenet.org")
@@ -161,10 +161,22 @@ namespace DarkwaterSupportBot
                 UtilityMethods.Print(e.Data + e.StackTrace, true);
             }
         }
+
+        private static void ProcessDBHelpCommands()
+        {
+        }
         protected override void OnUnknownCommandUsed(CmdTrigger trigger)
         {
-            trigger.Reply("This command does not exist, try !help or suggest the creation of the command");
+            if (trigger.Alias == null)
+            {
+                return;
+            }
+            HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias);
+            trigger.Reply(cmd != null
+                              ? cmd.HelpText
+                              : "This command does not exist, try !help or suggest the creation of the command");
         }
+
         protected override void OnQueryMsg(IrcUser user, StringStream text)
         {
             UtilityMethods.Print(user + text.String, true);
@@ -223,6 +235,20 @@ namespace DarkwaterSupportBot
         }
         public override bool MayTriggerCommand(CmdTrigger trigger, Command cmd)
         {
+            try
+            {
+                if (base.MayTriggerCommand(trigger, cmd))
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(DateTime.Now.ToString() + ":" + e.ToString());
+                return false;
+            }
+
             /*
             try
             {
@@ -243,7 +269,7 @@ namespace DarkwaterSupportBot
                 }
                 return trigger.User.IsOn("#wcell.dev") || trigger.User.IsOn("#woc") || trigger.User.IsOn("#wcell");*/
         //TODO: Update to add a proper suited auth system.);
-            return true;
+            //return true;
         }
            /* catch(Exception e)
             {

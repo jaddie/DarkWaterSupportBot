@@ -269,7 +269,7 @@ namespace Squishy.Irc
 			ChangeNick(nick);
 		}
 
-        internal void SetAccountLevel(AccountMgr.AccountLevel level)
+        public void SetAccountLevel(AccountMgr.AccountLevel level)
         {
             m_AccountLevel = level;
         }

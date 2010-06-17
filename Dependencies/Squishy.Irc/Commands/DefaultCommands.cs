@@ -9,151 +9,6 @@ using Squishy.Irc.Account;
 
 namespace Squishy.Irc.Commands
 {
-	/// <summary>
-	/// TODO: Use localized strings
-	/// The help command is special since it generates output.
-	/// This output needs to be shown in the GUI if used from commandline and 
-	/// sent to the requester if executed remotely.
-	/// </summary>
-	public class HelpCommand : Command
-	{
-		public static int MaxUncompressedCommands = 3;
-
-		public HelpCommand()
-			: base("Help", "?")
-		{
-			Usage = "Help|? [<match>]";
-			Description = "Shows an overview over all Commands or -if you specify a <match>- the help for any matching commands.";
-		}
-
-		public override void Process(CmdTrigger trigger)
-		{
-			var match = trigger.Args.NextWord();
-			IList<Command> cmds;
-			if (match.Length > 0)
-			{
-				cmds = new List<Command>();
-				foreach (var cmd in IrcCommandHandler.List)
-				{
-					if (cmd.Enabled &&
-						trigger.MayTrigger(cmd) &&
-						cmd.Aliases.FirstOrDefault(ali => ali.IndexOf(match, StringComparison.InvariantCultureIgnoreCase) != -1) != null)
-					{
-						cmds.Add(cmd);
-					}
-				}
-				if (cmds.Count == 0)
-				{
-					trigger.Reply("Could not find a command matching '{0}'", match);
-				}
-				else
-				{
-					trigger.Reply("Found {0} matching commands: ", cmds.Count);
-				}
-			}
-			else
-			{
-				trigger.Reply("Use \"Help <searchterm>\" to receive help on a certain command. - All current commands you can acces:");
-				cmds = IrcCommandHandler.List.Where(cmd => cmd.Enabled && trigger.MayTrigger(cmd)).ToList();
-			}
-
-			var line = "";
-			foreach (var cmd in cmds)
-			{
-				if (cmds.Count <= MaxUncompressedCommands)
-				{
-					var desc = string.Format("{0} ({1})", cmd.Usage, cmd.Description);
-					trigger.Reply(desc);
-				}
-				else
-				{
-					var info = cmd.Name;
-					info += " (" + cmd.Aliases.ToString(", ") + ")  ";
-
-					if (line.Length + info.Length >= IrcProtocol.MaxLineLength)
-					{
-						trigger.Reply(line);
-						line = "";
-					}
-
-					line += info;
-				}
-			}
-
-			if (line.Length > 0)
-			{
-				trigger.Reply(line);
-			}
-		}
-	}
-
-    public class Login : Command
-    {
-        public Login()
-            : base("Login")
-        {
-            Description = "login to your account";
-            Usage = "login accname pw";
-        }
-
-        public override void Process(CmdTrigger trigger)
-        {
-            char[] seperator = { ' ' };
-            string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-            AccountMgr.Login(trigger, accountLine[0], accountLine[1]);
-        }
-    }
-
-    public class CreateAccount : Command
-    {
-        public CreateAccount()
-            : base("createaccount", "ca")
-        {
-            Description = "create a account";
-            Usage = "createaccount accname pw";
-        }
-
-        public override void Process(CmdTrigger trigger)
-        {
-            char[] seperator = { ' ' };
-            string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-            AccountMgr.CreateAccount(trigger, accountLine[0], accountLine[1]);
-        }
-    }
-
-    public class ChangeUserLevel : Command
-    {
-        public ChangeUserLevel()
-            : base("ChangeUserLevel")
-        {
-            Description = "changes the user level of a user";
-            Usage = "ChangeUserLevel nick userlevel";
-            RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
-        }
-
-        public override void Process(CmdTrigger trigger)
-        {
-            char[] seperator = { ' ' };
-            string[] accountLine = trigger.Args.Remainder.Split(seperator, 2);
-            if (accountLine.Length >= 2)
-            {
-                IrcUser user = trigger.irc.GetUser(accountLine[0]);
-                if (accountLine[1].ToLower() == "guest")
-                {
-                    user.SetAccountLevel(AccountMgr.AccountLevel.Guest);
-                }
-                if (accountLine[1].ToLower() == "user")
-                {
-                    user.SetAccountLevel(AccountMgr.AccountLevel.User);
-                }
-                if (accountLine[1].ToLower() == "admin")
-                {
-                    user.SetAccountLevel(AccountMgr.AccountLevel.Admin);
-                }
-            }
-        }
-    }
-
 	public class VersionCommand : Command
 	{
 		public VersionCommand()
@@ -581,39 +436,36 @@ namespace Squishy.Irc.Commands
 			trigger.Irc.ServerPassword = trigger.Args.NextWord();
 		}
 	}
-
-	public class SetUsernameCommand : Command
-	{
-		public SetUsernameCommand()
-			: base("SetUser", "SetUsername")
-		{
-			Usage = "SetUser|SetUserName <username>";
-			Description = "Changes your username (will have effect after reconnect)";
+    public class SetUsernameCommand : Command
+    {
+        public SetUsernameCommand()
+            : base("SetUser", "SetUsername")
+        {
+            Usage = "SetUser|SetUserName <username>";
+            Description = "Changes your username (will have effect after reconnect)";
             RequiredAccountLevel = Account.AccountMgr.AccountLevel.Admin;
-		}
+        }
 
-		public override void Process(CmdTrigger trigger)
-		{
-			trigger.Irc.UserName = trigger.Args.NextWord();
-		}
-	}
-
-	public class SetNicksCommand : Command
-	{
-		public SetNicksCommand()
-			: base("SetNicks")
-		{
-			Usage = "SetNicks <nick>[ <nick2> [<nick3>...]]";
-			Description = "Changes your default nicknames (seperated by space).";
+        public override void Process(CmdTrigger trigger)
+        {
+            trigger.Irc.UserName = trigger.Args.NextWord();
+        }
+    }
+    public class SetNicksCommand : Command
+    {
+        public SetNicksCommand()
+            : base("SetNicks")
+        {
+            Usage = "SetNicks <nick>[ <nick2> [<nick3>...]]";
+            Description = "Changes your default nicknames (seperated by space).";
             RequiredAccountLevel = Account.AccountMgr.AccountLevel.Admin;
-		}
+        }
 
-		public override void Process(CmdTrigger trigger)
-		{
-			trigger.Irc.Nicks = trigger.Args.RemainingWords();
-		}
-	}
-
+        public override void Process(CmdTrigger trigger)
+        {
+            trigger.Irc.Nicks = trigger.Args.RemainingWords();
+        }
+    }
 	public class ConnectCommand : Command
 	{
 		public ConnectCommand()

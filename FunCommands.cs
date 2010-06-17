@@ -2,7 +2,6 @@
 using Squishy.Irc.Commands;
 
 namespace DarkwaterSupportBot
-
 {
     class FunCommands
     {
