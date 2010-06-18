@@ -160,11 +160,11 @@ namespace DarkwaterSupportBot
                     }
                     if (cmds.Count == 0)
                     {
-                        trigger.Reply("Could not find a command matching '{0}'", match);
+                        trigger.User.Msg("Could not find a command matching '{0}'", match);
                     }
                     else
                     {
-                        trigger.Reply("Found {0} matching commands: ", cmds.Count);
+                        trigger.User.Msg("Found {0} matching commands: ", cmds.Count);
                     }
                 }
                 else
@@ -180,8 +180,8 @@ namespace DarkwaterSupportBot
                         helpruns = helpruns + 1;
                         helpcmds = helpcmds + helpCommand.HelpName + ", ";
                     }
-                    trigger.Reply("The following commands are help triggers, you cannot use the !help command with these!\n" + helpcmds);
-                    trigger.Reply("Use \"Help <searchterm>\" to receive help on a certain command. - All current commands you can access:");
+                    trigger.User.Msg("The following commands are help triggers, you cannot use the !help command with these!\n" + helpcmds);
+                    trigger.User.Msg("Use \"Help <searchterm>\" to receive help on a certain command. - All current commands you can access:");
                     cmds = IrcCommandHandler.List.Where(cmd => cmd.Enabled && trigger.MayTrigger(cmd)).ToList();
                 }
 
@@ -191,7 +191,7 @@ namespace DarkwaterSupportBot
                     if (cmds.Count <= MaxUncompressedCommands)
                     {
                         var desc = string.Format("{0} ({1})", cmd.Usage, cmd.Description);
-                        trigger.Reply(desc);
+                        trigger.User.Msg(desc);
                     }
                     else
                     {
@@ -214,7 +214,7 @@ namespace DarkwaterSupportBot
 
                         if (line.Length + info.Length >= IrcProtocol.MaxLineLength)
                         {
-                            trigger.Reply(temp);
+                            trigger.User.Msg(temp);
                             line = "";
                         }
 
@@ -224,7 +224,7 @@ namespace DarkwaterSupportBot
 
                 if (line.Length > 0)
                 {
-                    trigger.Reply(line);
+                    trigger.User.Msg(line);
                 }
             }
         }

@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using Squishy.Irc;
+using Squishy.Irc.Account;
 using Squishy.Irc.Commands;
 using Squishy.Irc.Protocol;
 using Squishy.Network;
@@ -41,7 +42,7 @@ namespace DarkwaterSupportBot
                                                      Info = "Dogfighter Helper",
                                                      _network = Dns.GetHostAddresses("irc.quakenet.org")
                                                  };
-
+        public static System.Timers.Timer SpamTimer = new System.Timers.Timer();
         private IPAddress[] _network;
         #endregion
 
@@ -64,6 +65,8 @@ namespace DarkwaterSupportBot
             Irc.ProtocolHandler.PacketReceived += OnReceive;
             try
             {
+                SpamTimer.Interval = 5000;
+                SpamTimer.Elapsed += SpamTimer_Elapsed;
                 IrcLog.AutoFlush = true;
                 Console.ForegroundColor = ConsoleColor.Green;
                 #region IRC Connecting
@@ -96,6 +99,11 @@ namespace DarkwaterSupportBot
             }
 
             #endregion
+        }
+
+        static void SpamTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            SpamTimer.Stop();
         }
         protected static void OnReceive(IrcPacket packet)
         {
@@ -167,7 +175,12 @@ namespace DarkwaterSupportBot
                 return;
             }
             HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias.ToLower());
+            if(trigger.User.AccountLevel == AccountMgr.AccountLevel.User || trigger.User.AccountLevel == AccountMgr.AccountLevel.Admin)
             trigger.Reply(cmd != null
+                              ? cmd.HelpText
+                              : "This command does not exist, try !help or suggest the creation of the command");
+            else
+                trigger.User.Msg(cmd != null
                               ? cmd.HelpText
                               : "This command does not exist, try !help or suggest the creation of the command");
         }
@@ -234,7 +247,23 @@ namespace DarkwaterSupportBot
             {
                 if (base.MayTriggerCommand(trigger, cmd))
                 {
-                    return true;
+                    if (trigger.Channel != null && trigger.Target == trigger.Channel && !trigger.Args.String.ToLower().StartsWith(CommandHandler.RemoteCommandPrefix + "help"))
+                    {
+                        if (!SpamTimer.Enabled)
+                        {
+                            SpamTimer.Start();
+                            return true;
+                        }
+                        else
+                        {
+                            trigger.User.Msg("Don't try to make me spam!");
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -266,7 +295,6 @@ namespace DarkwaterSupportBot
         //TODO: Update to add a proper suited auth system.);
             //return true;
         }
-
         #endregion
 
         #endregion
