@@ -262,7 +262,6 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Guest);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
-                                        return;
                                     }
                                     break;
                                 case "user":
@@ -270,7 +269,6 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.User);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
-                                        return;
                                     }
                                     break;
                                 case "admin":
@@ -278,13 +276,6 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Admin);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
-                                        return;
-                                    }
-                                    break;
-                                default:
-                                    {
-                                        trigger.Reply("Failed to login, check input");
-                                        return;
                                     }
                                     break;
                             }
