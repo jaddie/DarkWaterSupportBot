@@ -17,7 +17,7 @@ namespace DarkwaterSupportBot
             {
                 Usage = "addhelp cmdtotrigger the text you want in the help reply text when the command is used";
                 Description = "Add a new command to the help database";
-                RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
+                RequiredAccountLevel = AccountMgr.AccountLevel.User;
             }
 
             public override void Process(CmdTrigger trigger)

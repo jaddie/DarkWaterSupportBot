@@ -37,6 +37,7 @@ namespace DarkwaterSupportBot
             {
                 Usage = "ClearSendQueue";
                 Description = "Command to clear the send queue. Useful if you want the bot to stop spamming";
+                RequiredAccountLevel = AccountMgr.AccountLevel.User;
             }
 
             public override void Process(CmdTrigger trigger)
