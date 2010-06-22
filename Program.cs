@@ -24,7 +24,7 @@ namespace DarkwaterSupportBot
 
         #region Lists
 
-        public static readonly List<string> ChannelList = new List<string> {"#woc"};
+        public static readonly List<string> ChannelList = new List<string> {"#woc","#dogfighter","#dogfighterbeta"};
 
         #endregion
 

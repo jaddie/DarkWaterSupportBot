@@ -115,6 +115,7 @@ namespace DarkwaterSupportBot
             {
                 Usage = "setsendqueue number";
                 Description = "Sets the throttle to number";
+                RequiredAccountLevel = AccountMgr.AccountLevel.Admin;
             }
 
             public override void Process(CmdTrigger trigger)
@@ -262,6 +263,7 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Guest);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
+                                        return;
                                     }
                                     break;
                                 case "user":
@@ -269,6 +271,7 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.User);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
+                                        return;
                                     }
                                     break;
                                 case "admin":
@@ -276,6 +279,7 @@ namespace DarkwaterSupportBot
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Admin);
                                         trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
                                                                     account.UserLevel));
+                                        return;
                                     }
                                     break;
                             }
