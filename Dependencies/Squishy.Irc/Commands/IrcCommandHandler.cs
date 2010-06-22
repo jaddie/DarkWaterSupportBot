@@ -220,17 +220,17 @@ namespace Squishy.Irc.Commands
 
 		public void CtcpRequest(string Target, string Request, string argFormat, params object[] args)
 		{
-			Msg(Target, "{0} {1}", Request.ToUpper(), String.Format(argFormat, args));
+			Msg(Target, "{0} {1}", Request.ToUpper(), string.Format(argFormat, args));
 		}
 
 		public void CtcpReply(string Target, string Request, string argFormat, params object[] args)
 		{
-			Notice(Target, "{0} {1}", Target, Request.ToUpper(), String.Format(argFormat, args));
+			Notice(Target, "{0} {1}", Request.ToUpper(), string.Format(argFormat, args));
 		}
 
 		public void DccRequest(string Target, string requestFormat, params object[] args)
 		{
-			CtcpRequest(Target, "DCC", String.Format(requestFormat, args));
+			CtcpRequest(Target, "DCC", requestFormat, args);
 		}
 
 		public void Mode(string flags)
