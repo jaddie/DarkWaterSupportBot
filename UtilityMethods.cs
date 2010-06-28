@@ -255,36 +255,35 @@ namespace DarkwaterSupportBot
             {
                 using (var accounts = new AccountsEntities())
                 {
+                    var authed = false;
                     foreach (var account in accounts.Accounts.Where(account => account.Username == username && account.Password == password))
                     {
                             switch (account.UserLevel)
                             {
                                 case "guest":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Guest);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                                 case "user":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.User);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                                 case "admin":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Admin);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                             }
                     }
+                    if(!authed)
                     trigger.Reply("Account data invalid! Please try again!");
                 }
             }
@@ -332,29 +331,11 @@ namespace DarkwaterSupportBot
         }
         public static bool ValidateUserLevel(string userlevel)
         {
-            switch (userlevel.ToLower())
+            if("admin user guest".Contains(userlevel.ToLower()))
             {
-                case "guest":
-                    {
-                        return true;
-                    }
-                    break;
-                case "user":
-                    {
-                        return true;
-                    }
-                    break;
-                case "admin":
-                    {
-                        return true;
-                    }
-                    break;
-                default:
-                    {
-                        return false;
-                    }
-                    break;
+                return true;
             }
+            return false;
         }
         public class DeleteAccountCommand : Command
         {
@@ -426,6 +407,7 @@ namespace DarkwaterSupportBot
                         foreach (var account in accounts.Accounts.Where(account => account.Username == username))
                         {
                             account.UserLevel = userlevel;
+                            trigger.Reply("Account level changed to " + userlevel);
                             accounts.SaveChanges();
                             return;
                         }
