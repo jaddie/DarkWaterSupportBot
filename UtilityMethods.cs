@@ -53,7 +53,10 @@ namespace DarkwaterSupportBot
             {
                 Console.WriteLine(DateTime.Now + text);
                 if (irclog)
-                    DarkWaterBot.IrcLog.WriteLine(DateTime.Now + text);
+                    using(var ircLog = new StreamWriter("Irclog.log",true))
+                    {
+                        ircLog.WriteLine(DateTime.Now + text);
+                    }
             }
             catch(Exception e)
             {

@@ -46,10 +46,6 @@ namespace DarkwaterSupportBot
         private IPAddress[] _network;
         #endregion
 
-        #region Streams
-        public static readonly StreamWriter IrcLog = new StreamWriter("IrcLog.log", true);
-        #endregion
-
         #region Other
 
         public static string LogFile;
@@ -67,7 +63,6 @@ namespace DarkwaterSupportBot
             {
                 SpamTimer.Interval = 5000;
                 SpamTimer.Elapsed += SpamTimer_Elapsed;
-                IrcLog.AutoFlush = true;
                 Console.ForegroundColor = ConsoleColor.Green;
                 #region IRC Connecting
 
@@ -137,7 +132,7 @@ namespace DarkwaterSupportBot
         public static void OnConnecting(Connection con)
         {
             UtilityMethods.Print("Connecting to IRC server", true);
-            IrcLog.WriteLine(DateTime.Now + " : Connecting to server");
+            UtilityMethods.Print(DateTime.Now + " : Connecting to server");
         }
         protected override void Perform()
         {
