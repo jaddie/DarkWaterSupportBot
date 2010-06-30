@@ -229,7 +229,7 @@ namespace DarkwaterSupportBot
                 }
 
                 #region MessagesSent
-
+                if(chan != null)
                 UtilityMethods.Print(string.Format("User {0} on channel {1} Sent {2}", user, chan, text), true);
 
                 #endregion

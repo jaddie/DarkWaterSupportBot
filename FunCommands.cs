@@ -81,7 +81,10 @@ namespace DarkwaterSupportBot
                     {
                         target = trigger.Args.NextWord();
                     }
+                    if(!string.IsNullOrEmpty(trigger.Args.Remainder))
                     trigger.Irc.CommandHandler.Describe(target, trigger.Args.Remainder, trigger.Args);
+                    else
+                    trigger.Reply("Empty action");
                 }
                 catch (Exception e)
                 {
