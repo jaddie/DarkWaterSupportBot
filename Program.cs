@@ -52,6 +52,7 @@ namespace DarkwaterSupportBot
         public static string ReplyChan = "#woc";
         public static readonly Stopwatch Runtimer = new Stopwatch();
         public static Process Utility = Process.GetCurrentProcess();
+        public static bool DisplayIrcPackets = false;
         #endregion
 
         #endregion Fields
@@ -102,11 +103,13 @@ namespace DarkwaterSupportBot
         }
         protected static void OnReceive(IrcPacket packet)
         {
+            if(DisplayIrcPackets)
                 Console.WriteLine("<-- " + packet);
         }
 
         protected override void OnBeforeSend(string text)
         {
+            if(DisplayIrcPackets)
                 Console.WriteLine("--> " + text);
         }
         public static void Client_Connected(Connection con)
@@ -165,8 +168,9 @@ namespace DarkwaterSupportBot
         }
         protected override void OnUnknownCommandUsed(CmdTrigger trigger)
         {
-            if (trigger.Alias == null)
+            if (string.IsNullOrEmpty(trigger.Alias))
             {
+                trigger.Reply("You entered a null query for a command, please try again or use !help");
                 return;
             }
             HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias.ToLower());

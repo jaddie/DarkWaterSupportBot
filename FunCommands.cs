@@ -81,7 +81,7 @@ namespace DarkwaterSupportBot
                     {
                         target = trigger.Args.NextWord();
                     }
-                    DarkWaterBot.Irc.CommandHandler.Describe(target, trigger.Args.Remainder, trigger.Args);
+                    trigger.Irc.CommandHandler.Describe(target, trigger.Args.Remainder, trigger.Args);
                 }
                 catch (Exception e)
                 {

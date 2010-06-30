@@ -136,6 +136,38 @@ namespace DarkwaterSupportBot
                 }
             }
         }
+        #region SetDisplayIrcPacketsCommand
+
+        public class SetDisplayIrcPacketsCommand : Command
+        {
+            public SetDisplayIrcPacketsCommand() : base("displaypackets")
+            {
+                Usage = "displaypackets true";
+                Description = "Sets displaying the irc packets on or off in the console.";
+            }
+
+            public override void Process(CmdTrigger trigger)
+            {
+                try
+                {
+                    var setting = Convert.ToBoolean(trigger.Args.NextWord());
+                    if (!string.IsNullOrEmpty(Convert.ToString(setting)))
+                    {
+                        DarkWaterBot.DisplayIrcPackets = setting;
+                    }
+                    else
+                    {
+                        trigger.Reply("Error parsing please check input, you may use true or false");
+                    }
+                }
+                catch (Exception e)
+                {
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace + e.Source + e.InnerException, true);
+                }
+            }
+        }
+
+        #endregion
         public class HelpCommand : Command
         {
             public static int MaxUncompressedCommands = 3;

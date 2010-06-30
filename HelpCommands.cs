@@ -28,8 +28,15 @@ namespace DarkwaterSupportBot
                     var helpText = trigger.Args.Remainder;
                     if(!string.IsNullOrEmpty(helpName) && !string.IsNullOrEmpty(helpText))
                     {
-                        HelpCommandsManager.Add(HelpCommand.CreateHelpCommand(helpName,helpText));
-                        trigger.Reply(string.Format("Added new command HelpTrigger: {0} HelpText: {1}",helpName,helpText));
+                        if (string.IsNullOrEmpty(Convert.ToString(HelpCommandsManager.Search(helpName))))
+                        {
+                            HelpCommandsManager.Add(HelpCommand.CreateHelpCommand(helpName, helpText));
+                            trigger.Reply(string.Format("Added new command HelpTrigger: {0} HelpText: {1}", helpName, helpText));
+                        }
+                        else
+                        {
+                            trigger.Reply("That help trigger already exists, please delete it first!");
+                        }
                     }
                     else
                     {
