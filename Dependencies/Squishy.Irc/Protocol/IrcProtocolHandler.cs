@@ -148,10 +148,18 @@ namespace Squishy.Irc.Protocol
 				}
 				else
 				{
-					packets.Add(CreatePacket(content));
-					if (!ss.HasNext)
+					try
 					{
-						lastResponsePart = "";
+						var packet = CreatePacket(content);
+						packets.Add(packet);
+						if (!ss.HasNext)
+						{
+							lastResponsePart = "";
+						}
+					}
+					catch (Exception e)
+					{
+						throw new Exception("Unable to parse packet: " + content, e);
 					}
 				}
 			}

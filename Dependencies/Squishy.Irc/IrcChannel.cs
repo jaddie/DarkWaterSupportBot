@@ -629,18 +629,18 @@ namespace Squishy.Irc
 				m_modes = m_modes.Remove(m_modes.IndexOf(mode), mode.Length);
 		}
 
-		internal void AddFlag(Privilege priv, IrcUser target)
+		internal void AddFlag(Privilege priv, IrcUser user)
 		{
-			var uprivs = Privileges[target];
+			var uprivs = GetPrivs(user);
 			if (uprivs != null)
 			{
 				uprivs.Add(priv);
 			}
 		}
 
-		internal void DeleteFlag(Privilege priv, IrcUser target)
+		internal void DeleteFlag(Privilege priv, IrcUser user)
 		{
-			UserPrivSet uprivs = Privileges[target];
+			var uprivs = GetPrivs(user);
 			if (uprivs != null)
 			{
 				uprivs.Remove(priv);

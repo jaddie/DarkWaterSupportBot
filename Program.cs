@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Squishy.Irc;
@@ -77,11 +78,7 @@ namespace DarkwaterSupportBot
                 Irc.BeginConnect(Irc._network[0].ToString(), Port);
                 #endregion
                 Runtimer.Start();
-                while (true) // Prevent WCell.Tools from crashing - due to console methods inside the program.
-                {
-                    var line = new StringStream(Console.ReadLine());
-                    UtilityMethods.OnConsoleText(line);
-                }
+                System.Windows.Forms.Application.Run();
             }
                 #region Main Exception Handling
 
@@ -108,6 +105,22 @@ namespace DarkwaterSupportBot
         protected static void OnReceive(IrcPacket packet)
         {
                 Console.WriteLine("<-- " + packet);
+        }
+        protected override void OnUserEncountered(IrcUser user)
+        {
+            if (user == null || user.Nick == null)
+            {
+                return;
+            }
+            using (var db = new MessagesContainer())
+            {
+                foreach (var message in db.Messages.Where(message => message.IrcNick.ToLower() == user.Nick.ToLower()))
+                {
+                    CommandHandler.Msg(user, "Date Left: " + message.DateLeft + "\nFrom Nick: " + message.FromIrcNick + "\nMessage Sent: " + message.MessageText);
+                    db.Messages.DeleteObject(message);
+                    db.SaveChanges();
+                }
+            }
         }
 
         protected override void OnBeforeSend(string text)
