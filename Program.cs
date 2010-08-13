@@ -113,7 +113,7 @@ namespace DarkwaterSupportBot
             {
                 foreach (var message in db.Messages.Where(message => message.IrcNick.ToLower() == user.Nick.ToLower()))
                 {
-                    CommandHandler.Msg(user, "Date Left: " + message.DateLeft + "\nFrom Nick: " + message.FromIrcNick + "\nMessage Sent: " + message.MessageText);
+                    CommandHandler.Msg(user.ToString(), "Date Left: " + message.DateLeft + "\nFrom Nick: " + message.FromIrcNick + "\nMessage Sent: " + message.MessageText);
                     db.Messages.DeleteObject(message);
                     db.SaveChanges();
                 }
