@@ -53,7 +53,10 @@ namespace DarkwaterSupportBot
             {
                 Console.WriteLine(DateTime.Now + text);
                 if (irclog)
-                    DarkWaterBot.IrcLog.WriteLine(DateTime.Now + text);
+                    using(var ircLog = new StreamWriter("Irclog.log",true))
+                    {
+                        ircLog.WriteLine(DateTime.Now + text);
+                    }
             }
             catch(Exception e)
             {
@@ -133,6 +136,38 @@ namespace DarkwaterSupportBot
                 }
             }
         }
+        #region SetDisplayIrcPacketsCommand
+
+        public class SetDisplayIrcPacketsCommand : Command
+        {
+            public SetDisplayIrcPacketsCommand() : base("displaypackets")
+            {
+                Usage = "displaypackets true";
+                Description = "Sets displaying the irc packets on or off in the console.";
+            }
+
+            public override void Process(CmdTrigger trigger)
+            {
+                try
+                {
+                    var setting = Convert.ToBoolean(trigger.Args.NextWord());
+                    if (!string.IsNullOrEmpty(Convert.ToString(setting)))
+                    {
+                        DarkWaterBot.DisplayIrcPackets = setting;
+                    }
+                    else
+                    {
+                        trigger.Reply("Error parsing please check input, you may use true or false");
+                    }
+                }
+                catch (Exception e)
+                {
+                    UtilityMethods.Print(e.Message + e.Data + e.StackTrace + e.Source + e.InnerException, true);
+                }
+            }
+        }
+
+        #endregion
         public class HelpCommand : Command
         {
             public static int MaxUncompressedCommands = 3;
@@ -255,36 +290,35 @@ namespace DarkwaterSupportBot
             {
                 using (var accounts = new AccountsEntities())
                 {
+                    var authed = false;
                     foreach (var account in accounts.Accounts.Where(account => account.Username == username && account.Password == password))
                     {
                             switch (account.UserLevel)
                             {
                                 case "guest":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Guest);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                                 case "user":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.User);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                                 case "admin":
                                     {
+                                        authed = true;
                                         trigger.User.SetAccountLevel(AccountMgr.AccountLevel.Admin);
-                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,
-                                                                    account.UserLevel));
-                                        return;
+                                        trigger.Reply(string.Format("Logged in as {0} with level {1}", account.Username,account.UserLevel));
                                     }
-                                    break;
+                                break;
                             }
                     }
+                    if(!authed)
                     trigger.Reply("Account data invalid! Please try again!");
                 }
             }
@@ -332,29 +366,11 @@ namespace DarkwaterSupportBot
         }
         public static bool ValidateUserLevel(string userlevel)
         {
-            switch (userlevel.ToLower())
+            if("admin user guest".Contains(userlevel.ToLower()))
             {
-                case "guest":
-                    {
-                        return true;
-                    }
-                    break;
-                case "user":
-                    {
-                        return true;
-                    }
-                    break;
-                case "admin":
-                    {
-                        return true;
-                    }
-                    break;
-                default:
-                    {
-                        return false;
-                    }
-                    break;
+                return true;
             }
+            return false;
         }
         public class DeleteAccountCommand : Command
         {
@@ -426,6 +442,7 @@ namespace DarkwaterSupportBot
                         foreach (var account in accounts.Accounts.Where(account => account.Username == username))
                         {
                             account.UserLevel = userlevel;
+                            trigger.Reply("Account level changed to " + userlevel);
                             accounts.SaveChanges();
                             return;
                         }

@@ -15,13 +15,27 @@ namespace DarkwaterSupportBot
 
         public static void Add(HelpCommand cmd)
         {
-            Help.HelpCommands.AddObject(cmd);
-            Help.SaveChanges();
+            try
+            {
+                Help.HelpCommands.AddObject(cmd);
+                Help.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                UtilityMethods.Print("Error occured in the adding method - " + e.InnerException.Data + e.InnerException + e.InnerException.Source + e.InnerException.Message + e.InnerException.StackTrace,true);
+            }
         }
         public static void Delete(HelpCommand cmd)
         {
-            Help.HelpCommands.DeleteObject(cmd);
-            Help.SaveChanges();
+            try
+            {
+                Help.HelpCommands.DeleteObject(cmd);
+                Help.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                UtilityMethods.Print("Error occured in the deleting method - " + e.InnerException.Data + e.InnerException + e.InnerException.Source + e.InnerException.Message + e.InnerException.StackTrace,true);
+            }
         }
     }
 }

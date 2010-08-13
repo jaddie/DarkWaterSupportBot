@@ -47,16 +47,13 @@ namespace DarkwaterSupportBot
         private IPAddress[] _network;
         #endregion
 
-        #region Streams
-        public static readonly StreamWriter IrcLog = new StreamWriter("IrcLog.log", true);
-        #endregion
-
         #region Other
 
         public static string LogFile;
         public static string ReplyChan = "#woc";
         public static readonly Stopwatch Runtimer = new Stopwatch();
         public static Process Utility = Process.GetCurrentProcess();
+        public static bool DisplayIrcPackets = false;
         #endregion
 
         #endregion Fields
@@ -68,7 +65,6 @@ namespace DarkwaterSupportBot
             {
                 SpamTimer.Interval = 5000;
                 SpamTimer.Elapsed += SpamTimer_Elapsed;
-                IrcLog.AutoFlush = true;
                 Console.ForegroundColor = ConsoleColor.Green;
                 #region IRC Connecting
 
@@ -104,6 +100,7 @@ namespace DarkwaterSupportBot
         }
         protected static void OnReceive(IrcPacket packet)
         {
+            if(DisplayIrcPackets)
                 Console.WriteLine("<-- " + packet);
         }
         protected override void OnUserEncountered(IrcUser user)
@@ -125,6 +122,7 @@ namespace DarkwaterSupportBot
 
         protected override void OnBeforeSend(string text)
         {
+            if(DisplayIrcPackets)
                 Console.WriteLine("--> " + text);
         }
         public static void Client_Connected(Connection con)
@@ -150,7 +148,7 @@ namespace DarkwaterSupportBot
         public static void OnConnecting(Connection con)
         {
             UtilityMethods.Print("Connecting to IRC server", true);
-            IrcLog.WriteLine(DateTime.Now + " : Connecting to server");
+            UtilityMethods.Print(DateTime.Now + " : Connecting to server");
         }
         protected override void Perform()
         {
@@ -183,8 +181,9 @@ namespace DarkwaterSupportBot
         }
         protected override void OnUnknownCommandUsed(CmdTrigger trigger)
         {
-            if (trigger.Alias == null)
+            if (string.IsNullOrEmpty(trigger.Alias))
             {
+                trigger.Reply("You entered a null query for a command, please try again or use !help");
                 return;
             }
             HelpCommand cmd = HelpCommandsManager.Search(trigger.Alias.ToLower());
@@ -243,7 +242,7 @@ namespace DarkwaterSupportBot
                 }
 
                 #region MessagesSent
-
+                if(chan != null)
                 UtilityMethods.Print(string.Format("User {0} on channel {1} Sent {2}", user, chan, text), true);
 
                 #endregion
